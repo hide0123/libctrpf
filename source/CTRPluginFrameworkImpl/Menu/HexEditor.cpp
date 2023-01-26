@@ -30,11 +30,7 @@ namespace CTRPluginFramework
         JumpToValue = 2
     };
 
-    HexEditor::HexEditor(u32 target) :
-        _submenu{ { "New cheat", "Jump to", "Jump relative", "Jump to value",
-                    "Converter", "Move backward", "Move forward", "Save this address",
-        "Browse history", "Clear history"}},//, "Play 1 Frame", "Play 2 frames", "Play 5 frames" }},
-        _renderTask(_RenderTop, (void *)this, Task::AppCores)
+    HexEditor::HexEditor(u32 target) : _submenu{{"New cheat", "Jump to", "Jump relative", "Jump to value", "Converter", "Move backward", "Move forward", "Save this address", "Browse history", "Clear history"}}, _renderTask(_RenderTop, (void *)this, Task::AppCores)
     {
         // Init context
         _indexHistory = -1;
@@ -63,9 +59,9 @@ namespace CTRPluginFramework
             delete _views[i];
     }
 
-    bool    HexEditor::operator()(EventList &eventList)
+    bool HexEditor::operator()(EventList &eventList)
     {
-        static bool     keysAreDisabled = false;
+        static bool keysAreDisabled = false;
 
         if (!keysAreDisabled)
         {
@@ -89,7 +85,7 @@ namespace CTRPluginFramework
         // If submenu is closed, check for a keyboard input
         if (!isSubMenuOpen)
         {
-            int     out;
+            int out;
             if (!(_ctx._flags & InvalidSrc) && _keyboard(out))
                 _viewCurrent->EditValueAtCursor(out);
         }
@@ -98,11 +94,15 @@ namespace CTRPluginFramework
         {
             int subchoice = _submenu();
 
-            if (!subchoice--)         _CreateCheat();
-            else if (!subchoice--)    _JumpTo(JumpTo);
-            else if (!subchoice--)    _JumpTo(JumpRelative);
-            else if (!subchoice--)    _JumpTo(JumpToValue);
-            else if (!subchoice--)    ///< Converter
+            if (!subchoice--)
+                _CreateCheat();
+            else if (!subchoice--)
+                _JumpTo(JumpTo);
+            else if (!subchoice--)
+                _JumpTo(JumpRelative);
+            else if (!subchoice--)
+                _JumpTo(JumpToValue);
+            else if (!subchoice--) ///< Converter
             {
                 // Enable clear key
                 _keyboard._keys->at(15).Enable(true);
@@ -113,7 +113,7 @@ namespace CTRPluginFramework
 
                 if (conv)
                 {
-                    Item& item = _GetSelectedItem();
+                    Item &item = _GetSelectedItem();
                     (*conv)(item.value32);
                 }
 
@@ -122,11 +122,16 @@ namespace CTRPluginFramework
                 // Disable enter key
                 _keyboard._keys->at(16).Enable(false);
             }
-            else if (!subchoice--)  _MoveBackward();
-            else if (!subchoice--)  _MoveForward();
-            else if (!subchoice--)  _SaveThisAddress();
-            else if (!subchoice--)  _BrowseHistory();
-            else if (!subchoice--)  _ClearHistory();
+            else if (!subchoice--)
+                _MoveBackward();
+            else if (!subchoice--)
+                _MoveForward();
+            else if (!subchoice--)
+                _SaveThisAddress();
+            else if (!subchoice--)
+                _BrowseHistory();
+            else if (!subchoice--)
+                _ClearHistory();
             // Fix Play X frames!!!!!
             /*else if (!subchoice--)  { Process::Play(1);  _ctx._flags |= DirtySrc; return false; }
             else if (!subchoice--)  { Process::Play(2);  _ctx._flags |= DirtySrc; return false; }
@@ -158,64 +163,65 @@ namespace CTRPluginFramework
         return (false);
     }
 
-    u32     HexEditor::GetCursorAddress(void)
+    u32 HexEditor::GetCursorAddress(void)
     {
         return _ctx._cursorAddress;
     }
 
-    void    HexEditor::_ProcessEvent(Event &event)
+    void HexEditor::_ProcessEvent(Event &event)
     {
         _viewCurrent->ProcessEvent(event);
 
-        u32&    flags = _ctx._flags;
+        u32 &flags = _ctx._flags;
 
         if (event.type == Event::KeyPressed)
         {
             switch (event.key.code)
             {
-                case Key::A:
-                {
-                    if (flags & DirtyMemoryCache)
-                        _ApplyChanges();
-                    break;
-                }
+            case Key::A:
+            {
+                if (flags & DirtyMemoryCache)
+                    _ApplyChanges();
+                break;
+            }
 
-                case Key::B:
-                {
-                    if (flags & DirtyMemoryCache)
-                        _DiscardChanges();
-                    else
-                        Window::BottomWindow.Close();
-                    break;
-                }
-                case Key::L:
-                {
-                    if (!(flags & DirtyMemoryCache))
-                        SetView(_viewId == ByteV ? AsmV : _viewId - 1);
-                    break;
-                }
-                case Key::R:
-                {
-                    if (!(flags & DirtyMemoryCache))
-                        SetView(_viewId == AsmV ? ByteV : _viewId + 1);
-                    break;
-                }
-                default: break;
+            case Key::B:
+            {
+                if (flags & DirtyMemoryCache)
+                    _DiscardChanges();
+                else
+                    Window::BottomWindow.Close();
+                break;
+            }
+            case Key::L:
+            {
+                if (!(flags & DirtyMemoryCache))
+                    SetView(_viewId == ByteV ? AsmV : _viewId - 1);
+                break;
+            }
+            case Key::R:
+            {
+                if (!(flags & DirtyMemoryCache))
+                    SetView(_viewId == AsmV ? ByteV : _viewId + 1);
+                break;
+            }
+            default:
+                break;
             }
         }
     }
 
-    s32    HexEditor::_RenderTop(void *arg)
+    s32 HexEditor::_RenderTop(void *arg)
     {
-        HexEditor *obj = __g_hexEditor;//(HexEditor *)arg;
-        Context&   _ctx = obj->_ctx;
+        HexEditor *obj = __g_hexEditor; //(HexEditor *)arg;
+        Context &_ctx = obj->_ctx;
 
         Renderer::SetTarget(TOP);
 
-        const Color     &maintextcolor = Preferences::Settings.MainTextColor;
-        //const Color     &red = Color::Red;
+        const Color &maintextcolor = Preferences::Settings.MainTextColor;
+        // const Color     &red = Color::Red;
 
-        int   posY = 61;
+        int posY = 61;
 
         Window::TopWindow.Draw("HexEditor");
 
@@ -236,7 +242,6 @@ namespace CTRPluginFramework
             Renderer::DrawString(_ctx._items[i].addrCache, 54, posY, Color::Black);
         }
 
-
         // Render view
         obj->_viewCurrent->Draw();
 
@@ -247,7 +252,7 @@ namespace CTRPluginFramework
             posY -= 14;
             Renderer::DrawSysString("\uE000", 149, posY, 330, maintextcolor);
 
-            posY +=2;
+            posY += 2;
             Renderer::DrawString("Discard changes: ", 44, posY, maintextcolor);
             posY -= 14;
             Renderer::DrawSysString("\uE001", 149, posY, 330, maintextcolor);
@@ -266,26 +271,26 @@ namespace CTRPluginFramework
         return 0;
     }
 
-    void    HexEditor::_RenderBottom(void)
+    void HexEditor::_RenderBottom(void)
     {
         _keyboard._RenderBottom();
 
         Window::BottomWindow.DrawButton();
     }
 
-    void    HexEditor::_Update(void)
+    void HexEditor::_Update(void)
     {
-        bool        isTouched = Touch::IsDown();
-        IntVector   touchPos(Touch::GetPosition());
+        bool isTouched = Touch::IsDown();
+        IntVector touchPos(Touch::GetPosition());
 
         Window::BottomWindow.Update(isTouched, touchPos);
 
-        u32&    flags = _ctx._flags;
+        u32 &flags = _ctx._flags;
 
         // Check if src has changed
         if (flags & DirtySrc)
         {
-            MemInfo     memregion = ProcessImpl::GetMemRegion(_ctx._address);
+            MemInfo memregion = ProcessImpl::GetMemRegion(_ctx._address);
 
             // Check for invalid src
             if (memregion.base_addr == 0)
@@ -299,13 +304,13 @@ namespace CTRPluginFramework
 
         if (flags & DirtyMemory && !(flags & InvalidSrc))
         {
-            MemInfo     memregion = ProcessImpl::GetMemRegion(_ctx._address);
-            u32         endRegion = memregion.base_addr + memregion.size;
-            u32         address = _ctx._address;
+            MemInfo memregion = ProcessImpl::GetMemRegion(_ctx._address);
+            u32 endRegion = memregion.base_addr + memregion.size;
+            u32 address = _ctx._address;
 
             _ctx._items.resize(_viewCurrent->TotalItems);
 
-            for (Item& item: _ctx._items)
+            for (Item &item : _ctx._items)
             {
                 // If address is outside the region, get next region
                 if (address >= endRegion)
@@ -315,7 +320,7 @@ namespace CTRPluginFramework
                     address = memregion.base_addr;
                 }
 
-                item.address =  address;
+                item.address = address;
                 item.value32 = *(vu32 *)address;
                 snprintf(item.addrCache, 9, "%08X", static_cast<unsigned int>(address));
                 address += 4;
@@ -336,7 +341,7 @@ namespace CTRPluginFramework
         }
     }
 
-    void    HexEditor::_CreateCheat(void)
+    void HexEditor::_CreateCheat(void)
     {
         if (!Preferences::Settings.AllowActionReplay)
             return;
@@ -347,11 +352,11 @@ namespace CTRPluginFramework
             return;
         }
 
-        u32     address = _ctx._cursorAddress & ~3;
+        u32 address = _ctx._cursorAddress & ~3;
         PluginMenuActionReplay::NewARCode(0, address, *(u32 *)address);
     }
 
-    void    HexEditor::_MoveBackward(void)
+    void HexEditor::_MoveBackward(void)
     {
         // If there's nothing in the history
         if (!_history.size())
@@ -365,7 +370,7 @@ namespace CTRPluginFramework
         Goto(_history[_indexHistory], true);
     }
 
-    void    HexEditor::_MoveForward(void)
+    void HexEditor::_MoveForward(void)
     {
         // If there's nothing in the history
         if (!_history.size())
@@ -379,16 +384,16 @@ namespace CTRPluginFramework
         Goto(_history[_indexHistory], true);
     }
 
-    void    HexEditor::_SaveThisAddress(void)
+    void HexEditor::_SaveThisAddress(void)
     {
-        u32     address = _ctx._cursorAddress;
+        u32 address = _ctx._cursorAddress;
         if (_history.size() && _history.back() == address)
             return;
         _history.push_back(address);
         _indexHistory = _history.size() - 1;
     }
 
-    void    HexEditor::_BrowseHistory(void)
+    void HexEditor::_BrowseHistory(void)
     {
         if (_history.empty())
         {
@@ -396,7 +401,7 @@ namespace CTRPluginFramework
             return;
         }
 
-        Keyboard    keyboard;
+        Keyboard keyboard;
         std::vector<std::string> addresses;
 
         for (u32 v : _history)
@@ -414,16 +419,16 @@ namespace CTRPluginFramework
         }
     }
 
-    void    HexEditor::_ClearHistory(void)
+    void HexEditor::_ClearHistory(void)
     {
         _history.clear();
         _indexHistory = -1;
     }
 
-    bool    HexEditor::Goto(u32 address, bool updateCursor)
+    bool HexEditor::Goto(u32 address, bool updateCursor)
     {
         // Check if the address is valid
-        MemInfo     region = ProcessImpl::GetMemRegion(address);
+        MemInfo region = ProcessImpl::GetMemRegion(address);
 
         if (region.base_addr == 0)
             return false;
@@ -447,9 +452,9 @@ namespace CTRPluginFramework
         return true;
     }
 
-    void    HexEditor::SetView(u32 view)
+    void HexEditor::SetView(u32 view)
     {
-        u32& flags = _ctx._flags;
+        u32 &flags = _ctx._flags;
 
         if (flags & DirtyMemoryCache)
             return;
@@ -458,7 +463,7 @@ namespace CTRPluginFramework
         _viewCurrent = _views[_viewId];
 
         // Check view boundaries
-        u32     viewSizeInBytes = _viewCurrent->TotalItems << 2;
+        u32 viewSizeInBytes = _viewCurrent->TotalItems << 2;
         while (_ctx._cursorAddress >= _ctx._address + viewSizeInBytes)
             _ctx._address += _viewCurrent->Stride;
 
@@ -468,12 +473,12 @@ namespace CTRPluginFramework
         flags |= UpdateView | DirtyCursor;
     }
 
-    void    HexEditor::Refresh(void)
+    void HexEditor::Refresh(void)
     {
         _ctx._flags |= DirtySrc;
     }
 
-    void    HexEditor::_ApplyChanges(void)
+    void HexEditor::_ApplyChanges(void)
     {
         if (!(_ctx._flags & DirtyMemoryCache) || _ctx._flags & InvalidSrc)
             return;
@@ -485,25 +490,25 @@ namespace CTRPluginFramework
         _ctx._flags |= DirtyViewCache;
     }
 
-    void    HexEditor::_DiscardChanges(void)
+    void HexEditor::_DiscardChanges(void)
     {
-        for (Item& item : _ctx._items)
+        for (Item &item : _ctx._items)
             item.value32 = *(vu32 *)item.address;
 
         _ctx._flags &= ~DirtyMemoryCache;
         _ctx._flags |= DirtyViewCache;
     }
 
-    u32     HexEditor::_PromptForAddress(int mode)
+    u32 HexEditor::_PromptForAddress(int mode)
     {
         static const char *msg[2] = {"Enter the address to jump to:", "Enter the offset to jump to:"};
 
-        Keyboard    keyboard;
+        Keyboard keyboard;
 
-        const Color     &bgMain = Preferences::Settings.BackgroundMainColor;
-        const Color     &bgSecondary = Preferences::Settings.BackgroundSecondaryColor;
-        const Color     &skyblue = Color::SkyBlue;
-        static IntRect  background(93, 95, 213, 50);
+        const Color &bgMain = Preferences::Settings.BackgroundMainColor;
+        const Color &bgSecondary = Preferences::Settings.BackgroundSecondaryColor;
+        const Color &skyblue = Color::SkyBlue;
+        static IntRect background(93, 95, 213, 50);
 
         Renderer::SetTarget(TOP);
 
@@ -548,7 +553,7 @@ namespace CTRPluginFramework
         return address;
     }
 
-    void    HexEditor::_JumpTo(int mode)
+    void HexEditor::_JumpTo(int mode)
     {
         u32 address;
 
@@ -556,8 +561,7 @@ namespace CTRPluginFramework
         {
             address = _GetSelectedItem().value32;
 
-            if (!(MessageBox("Confirm",
-                Utils::Format("Do you want to jump to: 0x%08X ?", address), DialogType::DialogYesNo))())
+            if (!(MessageBox("Confirm", Utils::Format("Do you want to jump to: 0x%08X ?", address), DialogType::DialogYesNo))())
                 return;
         }
         else
@@ -574,30 +578,29 @@ namespace CTRPluginFramework
         }
     }
 
-    void    HexEditor::_GotoPreviousRegion(void)
+    void HexEditor::_GotoPreviousRegion(void)
     {
         if (_ctx._flags & DirtyMemoryCache || _submenu.IsOpen())
             return;
 
-        MemInfo     currentRegion = ProcessImpl::GetMemRegion(_ctx._items.front().address);
-        MemInfo     previousRegion = ProcessImpl::GetPreviousRegion(currentRegion);
+        MemInfo currentRegion = ProcessImpl::GetMemRegion(_ctx._items.front().address);
+        MemInfo previousRegion = ProcessImpl::GetPreviousRegion(currentRegion);
 
         Goto(previousRegion.base_addr, true);
     }
 
-    void    HexEditor::_GotoNextRegion(void)
+    void HexEditor::_GotoNextRegion(void)
     {
         if (_ctx._flags & DirtyMemoryCache || _submenu.IsOpen())
             return;
 
-        MemInfo     currentRegion = ProcessImpl::GetMemRegion(_ctx._items.front().address);
-        MemInfo     nextRegion = ProcessImpl::GetNextRegion(currentRegion);
+        MemInfo currentRegion = ProcessImpl::GetMemRegion(_ctx._items.front().address);
+        MemInfo nextRegion = ProcessImpl::GetNextRegion(currentRegion);
 
         Goto(nextRegion.base_addr, true);
     }
 
-
-    HexEditor::Item&   HexEditor::_GetSelectedItem(void)
+    HexEditor::Item &HexEditor::_GetSelectedItem(void)
     {
         u32 item = _ctx._cursorY * _viewCurrent->ItemsPerLine;
 
@@ -611,14 +614,14 @@ namespace CTRPluginFramework
     ** Context
     */
 
-    bool    HexEditor::Context::ScrollUp(u32 stride, bool updatecursor)
+    bool HexEditor::Context::ScrollUp(u32 stride, bool updatecursor)
     {
-        u32     target = _address - stride;
+        u32 target = _address - stride;
         // If we're already the upper possible, no scroll
         if (target < 0x00100000)
             return false;
 
-        MemInfo     region = ProcessImpl::GetMemRegion(_address);
+        MemInfo region = ProcessImpl::GetMemRegion(_address);
 
         // If we're at the top of the current region, fetch previous region
         if (target < region.base_addr)
@@ -633,13 +636,13 @@ namespace CTRPluginFramework
         return true;
     }
 
-    bool    HexEditor::Context::ScrollDown(u32 stride, bool updatecursor)
+    bool HexEditor::Context::ScrollDown(u32 stride, bool updatecursor)
     {
-        u32     target = _address + stride;
-        u32     targetEnd = target + 10 * stride;
+        u32 target = _address + stride;
+        u32 targetEnd = target + 10 * stride;
 
-        MemInfo     region = ProcessImpl::GetMemRegion(_address);
-        MemInfo     nextregion = ProcessImpl::GetNextRegion(region);
+        MemInfo region = ProcessImpl::GetMemRegion(_address);
+        MemInfo nextregion = ProcessImpl::GetNextRegion(region);
 
         // If we're already at the last region, don't scroll outside it
         if (region == nextregion && targetEnd >= region.base_addr + region.size)
@@ -657,34 +660,33 @@ namespace CTRPluginFramework
     ** View helpers
     */
 
-    static inline s16   Min16(s16 left, s16 right)
+    static inline s16 Min16(s16 left, s16 right)
     {
         return std::min(left, right);
     }
 
-    static inline s16   Max16(s16 left, s16 right)
+    static inline s16 Max16(s16 left, s16 right)
     {
         return std::max(left, right);
     }
 
-    static inline s16   Wrap16(s16 limit, s16 wrap, s16 curval, s16 newval)
+    static inline s16 Wrap16(s16 limit, s16 wrap, s16 curval, s16 newval)
     {
         return curval == limit ? wrap : newval;
     }
 
-    void     HexEditor::IView::ProcessEventsCommon(Context& _ctx, Event& event, s16 maxX)
+    void HexEditor::IView::ProcessEventsCommon(Context &_ctx, Event &event, s16 maxX)
     {
         // Key pressed
-        if (event.type == Event::EventType::KeyPressed
-            || (event.type == Event::KeyDown && _ctx._clock.HasTimePassed(_ctx._latency)))
+        if (event.type == Event::EventType::KeyPressed || (event.type == Event::KeyDown && _ctx._clock.HasTimePassed(_ctx._latency)))
         {
             _ctx._clock.Restart();
 
-            u32&    flags = _ctx._flags;
-            u32     key = event.key.code;
-            s16 &   _cursorX = _ctx._cursorX;
-            s16 &   _cursorY = _ctx._cursorY;
-            bool    canScroll = !(_ctx._flags & DirtyMemoryCache);
+            u32 &flags = _ctx._flags;
+            u32 key = event.key.code;
+            s16 &_cursorX = _ctx._cursorX;
+            s16 &_cursorY = _ctx._cursorY;
+            bool canScroll = !(_ctx._flags & DirtyMemoryCache);
 
             // Scroll up
             if (key == Key::DPadUp)
@@ -776,8 +778,7 @@ namespace CTRPluginFramework
     ** ByteView
     */
 
-    HexEditor::ByteView::ByteView(Context& ctx) :
-         _ctx{ctx}
+    HexEditor::ByteView::ByteView(Context &ctx) : _ctx{ctx}
     {
         ItemsPerLine = 2;
         DigitPerLine = 16;
@@ -785,9 +786,9 @@ namespace CTRPluginFramework
         Stride = 8;
     }
 
-    void    HexEditor::ByteView::Draw(void)
+    void HexEditor::ByteView::Draw(void)
     {
-        int   posY = 61;
+        int posY = 61;
 
         // Draw value header
         Renderer::DrawRect(111, posY, 178, 20, Color::DeepSkyBlue);
@@ -815,10 +816,10 @@ namespace CTRPluginFramework
         int posXRight = 209;
 
         int idx = 0;
-        for (Item& item : _ctx._items)
+        for (Item &item : _ctx._items)
         {
-            int  posXX = idx & 1 ? posXRight : posXLeft;
-            int& posYY = idx & 1 ? posYRight : posYLeft;
+            int posXX = idx & 1 ? posXRight : posXLeft;
+            int &posYY = idx & 1 ? posYRight : posYLeft;
 
             // Values
             Renderer::DrawString(item.valueCache.c_str(), posXX, posYY, Color::Black);
@@ -832,14 +833,14 @@ namespace CTRPluginFramework
         }
     }
 
-    void    HexEditor::ByteView::ProcessEvent(Event &event)
+    void HexEditor::ByteView::ProcessEvent(Event &event)
     {
         ProcessEventsCommon(_ctx, event, 15);
     }
 
-    void    HexEditor::ByteView::UpdateView(void)
+    void HexEditor::ByteView::UpdateView(void)
     {
-        u32&    flags = _ctx._flags;
+        u32 &flags = _ctx._flags;
 
         // Check if cursor must be placed at a specified address
         if (flags & DirtyCursor)
@@ -847,13 +848,13 @@ namespace CTRPluginFramework
             flags &= ~DirtyCursor;
             flags |= (DirtyCursorPos | DirtyCursorCache);
 
-            u32     start = _ctx._address;
-            u32     target = _ctx._cursorAddress - start;
+            u32 start = _ctx._address;
+            u32 target = _ctx._cursorAddress - start;
 
-            u32     shiftY = __builtin_ctz(Stride);
-            u32     shiftX = __builtin_clz(Stride);
+            u32 shiftY = __builtin_ctz(Stride);
+            u32 shiftX = __builtin_clz(Stride);
             _ctx._cursorX = target << shiftX >> shiftX << 1;
-            _ctx._cursorY = target >> shiftY;           /// _ctx._cursorY = target / _viewCurrent->Stride
+            _ctx._cursorY = target >> shiftY; /// _ctx._cursorY = target / _viewCurrent->Stride
         }
 
         // Check if cache needs to be refreshed
@@ -861,20 +862,20 @@ namespace CTRPluginFramework
         {
             flags &= ~DirtyViewCache;
 
-            for (Item& item: _ctx._items)
+            for (Item &item : _ctx._items)
             {
-                bool            red = false;
-                u8            * b = &item.b[0];
-                std::string&    value = item.valueCache;
-                std::string&    data = item.dataCache;
+                bool red = false;
+                u8 *b = &item.b[0];
+                std::string &value = item.valueCache;
+                std::string &data = item.dataCache;
 
                 value.clear();
                 data.clear();
 
                 union
                 {
-                    u32     origin32;
-                    u8      ob[4];
+                    u32 origin32;
+                    u8 ob[4];
                 };
 
                 origin32 = *(vu32 *)item.address;
@@ -916,33 +917,31 @@ namespace CTRPluginFramework
 
             // posX
             {
-                u32     startX = 124;
-                u32     byteWidth = 3 * 6;
-                u32     bytes = _ctx._cursorX >> 1;
+                u32 startX = 124;
+                u32 byteWidth = 3 * 6;
+                u32 bytes = _ctx._cursorX >> 1;
 
-                _ctx._cursorPosX = startX + bytes * byteWidth
-                                + ((_ctx._cursorX & 1) ? 6 : 0)
-                                + ((_ctx._cursorX >> 3) > 0 ? 12 : 0);
+                _ctx._cursorPosX = startX + bytes * byteWidth + ((_ctx._cursorX & 1) ? 6 : 0) + ((_ctx._cursorX >> 3) > 0 ? 12 : 0);
             }
 
             // posY
             {
-                u32     startY = 82;
-                u32     lineHeight = 10;
-                u32     lines = _ctx._cursorY;
+                u32 startY = 82;
+                u32 lineHeight = 10;
+                u32 lines = _ctx._cursorY;
 
                 _ctx._cursorPosY = startY + lines * lineHeight;
             }
         }
     }
 
-    void    HexEditor::ByteView::EditValueAtCursor(u32 val)
+    void HexEditor::ByteView::EditValueAtCursor(u32 val)
     {
         // Edit value
         {
-            u32     itemIdx = (_ctx._cursorY << 1) + (_ctx._cursorX > 7 ? 1 : 0);
-            Item&   item = _ctx._items[itemIdx];
-            u32     cursor = _ctx._cursorX > 7 ? _ctx._cursorX - 8 : _ctx._cursorX;
+            u32 itemIdx = (_ctx._cursorY << 1) + (_ctx._cursorX > 7 ? 1 : 0);
+            Item &item = _ctx._items[itemIdx];
+            u32 cursor = _ctx._cursorX > 7 ? _ctx._cursorX - 8 : _ctx._cursorX;
 
             cursor = (cursor & 1 ? cursor - 1 : cursor + 1) << 2;
             item.value32 &= ~(0xF << cursor);
@@ -950,9 +949,9 @@ namespace CTRPluginFramework
         }
 
         // Move cursor
-        s16&    _cursorY = _ctx._cursorY;
-        s16&    _cursorX = _ctx._cursorX;
-        s16     cursor = _cursorX;
+        s16 &_cursorY = _ctx._cursorY;
+        s16 &_cursorX = _ctx._cursorX;
+        s16 cursor = _cursorX;
 
         // Advance cursor
         _cursorX = Wrap16(15, 0, _cursorX, _cursorX + 1);
@@ -978,8 +977,7 @@ namespace CTRPluginFramework
     ** IntegerView
     */
 
-    HexEditor::IntegerView::IntegerView(Context& ctx) :
-        _ctx{ctx}
+    HexEditor::IntegerView::IntegerView(Context &ctx) : _ctx{ctx}
     {
         ItemsPerLine = 4;
         DigitPerLine = 32;
@@ -987,9 +985,9 @@ namespace CTRPluginFramework
         Stride = 16;
     }
 
-    void    HexEditor::IntegerView::Draw(void)
+    void HexEditor::IntegerView::Draw(void)
     {
-        int   posY = 61;
+        int posY = 61;
 
         // Draw value header
         Renderer::DrawRect(111, posY, 245, 20, Color::DeepSkyBlue);
@@ -1019,14 +1017,14 @@ namespace CTRPluginFramework
         }
     }
 
-    void    HexEditor::IntegerView::ProcessEvent(Event &event)
+    void HexEditor::IntegerView::ProcessEvent(Event &event)
     {
         ProcessEventsCommon(_ctx, event, 31);
     }
 
-    void    HexEditor::IntegerView::UpdateView(void)
+    void HexEditor::IntegerView::UpdateView(void)
     {
-        u32&    flags = _ctx._flags;
+        u32 &flags = _ctx._flags;
 
         // Check if cursor must be placed at a specified address
         if (flags & DirtyCursor)
@@ -1034,14 +1032,14 @@ namespace CTRPluginFramework
             flags &= ~DirtyCursor;
             flags |= (DirtyCursorPos | DirtyCursorCache);
 
-            u32     start = _ctx._address;
-            u32     target = _ctx._cursorAddress - start;
-            u32     shift = 31 - __builtin_clz(Stride);
-            u32     targetX = (target - (target >> shift << shift)) << 1; /// target % Stride * 2
+            u32 start = _ctx._address;
+            u32 target = _ctx._cursorAddress - start;
+            u32 shift = 31 - __builtin_clz(Stride);
+            u32 targetX = (target - (target >> shift << shift)) << 1; /// target % Stride * 2
 
-            _ctx._cursorX = targetX >> 3 << 3; /// targetX / 8
+            _ctx._cursorX = targetX >> 3 << 3;              /// targetX / 8
             _ctx._cursorX += 6 - (targetX - _ctx._cursorX); /// 7 - targetX % 8
-            _ctx._cursorY = target >> shift; /// _ctx._cursorY = target / Stride
+            _ctx._cursorY = target >> shift;                /// _ctx._cursorY = target / Stride
         }
 
         // Check if cache needs to be refreshed
@@ -1049,11 +1047,11 @@ namespace CTRPluginFramework
         {
             flags &= ~DirtyViewCache;
 
-            for (Item& item: _ctx._items)
+            for (Item &item : _ctx._items)
             {
-                //bool            red = false;
-                std::string&    value = item.valueCache;
-                std::string&    data = item.dataCache;
+                // bool            red = false;
+                std::string &value = item.valueCache;
+                std::string &data = item.dataCache;
 
                 value.clear();
                 data.clear();
@@ -1075,7 +1073,7 @@ namespace CTRPluginFramework
             flags &= ~DirtyCursorAddress;
             flags |= DirtyCursorCache;
 
-            u32     cursorX = (_ctx._cursorX >> 3) << 3;
+            u32 cursorX = (_ctx._cursorX >> 3) << 3;
             _ctx._cursorAddress = cursorX >> 1;
             _ctx._cursorAddress += 3 - ((_ctx._cursorX - cursorX) >> 1);
             _ctx._cursorAddress += _ctx._items[_ctx._cursorY << 2].address;
@@ -1088,43 +1086,42 @@ namespace CTRPluginFramework
 
             // posX
             {
-                u32     startX = 120;
-                u32     byteWidth = 12;
-                u32     bytes = _ctx._cursorX >> 1;
-                u32     space = (_ctx._cursorX >> 3) * 10;
+                u32 startX = 120;
+                u32 byteWidth = 12;
+                u32 bytes = _ctx._cursorX >> 1;
+                u32 space = (_ctx._cursorX >> 3) * 10;
 
-                _ctx._cursorPosX = startX + bytes * byteWidth + space
-                                + ((_ctx._cursorX & 1) ? 6 : 0);
+                _ctx._cursorPosX = startX + bytes * byteWidth + space + ((_ctx._cursorX & 1) ? 6 : 0);
             }
 
             // posY
             {
-                u32     startY = 82;
-                u32     lineHeight = 10;
-                u32     lines = _ctx._cursorY;
+                u32 startY = 82;
+                u32 lineHeight = 10;
+                u32 lines = _ctx._cursorY;
 
                 _ctx._cursorPosY = startY + lines * lineHeight;
             }
         }
     }
 
-    void    HexEditor::IntegerView::EditValueAtCursor(u32 val)
+    void HexEditor::IntegerView::EditValueAtCursor(u32 val)
     {
         // Edit value
         {
-            u32     xIdx = _ctx._cursorX >> 3;
-            u32     itemIdx = (_ctx._cursorY << 2) + xIdx;
-            Item&   item = _ctx._items[itemIdx];
-            u32     cursor = (7 - (_ctx._cursorX - (xIdx << 3))) << 2;
+            u32 xIdx = _ctx._cursorX >> 3;
+            u32 itemIdx = (_ctx._cursorY << 2) + xIdx;
+            Item &item = _ctx._items[itemIdx];
+            u32 cursor = (7 - (_ctx._cursorX - (xIdx << 3))) << 2;
 
             item.value32 &= ~(0xF << cursor);
             item.value32 |= val << cursor;
         }
 
         // Move cursor
-        s16&    _cursorY = _ctx._cursorY;
-        s16&    _cursorX = _ctx._cursorX;
-        s16     cursor = _cursorX;
+        s16 &_cursorY = _ctx._cursorY;
+        s16 &_cursorX = _ctx._cursorX;
+        s16 cursor = _cursorX;
 
         // Advance cursor
         _cursorX = Wrap16(31, 0, _cursorX, _cursorX + 1);
@@ -1146,13 +1143,11 @@ namespace CTRPluginFramework
         _ctx._flags |= DirtyMemoryCache | DirtyViewCache | DirtyCursorAddress | DirtyCursorPos;
     }
 
-
     /*
     ** FloatView
     */
 
-    HexEditor::FloatView::FloatView(Context& ctx) :
-        _ctx{ctx}
+    HexEditor::FloatView::FloatView(Context &ctx) : _ctx{ctx}
     {
         ItemsPerLine = 2;
         DigitPerLine = 16;
@@ -1160,19 +1155,19 @@ namespace CTRPluginFramework
         Stride = 8;
     }
 
-    void    HexEditor::FloatView::Draw(void)
+    void HexEditor::FloatView::Draw(void)
     {
     }
 
-    void    HexEditor::FloatView::ProcessEvent(Event &event)
+    void HexEditor::FloatView::ProcessEvent(Event &event)
     {
     }
 
-    void    HexEditor::FloatView::UpdateView(void)
+    void HexEditor::FloatView::UpdateView(void)
     {
     }
 
-    void    HexEditor::FloatView::EditValueAtCursor(u32 val)
+    void HexEditor::FloatView::EditValueAtCursor(u32 val)
     {
     }
 
@@ -1180,8 +1175,7 @@ namespace CTRPluginFramework
     ** AsmView
     */
 
-    HexEditor::AsmView::AsmView(Context& ctx) :
-        _ctx{ctx}
+    HexEditor::AsmView::AsmView(Context &ctx) : _ctx{ctx}
     {
         ItemsPerLine = 1;
         DigitPerLine = 8;
@@ -1189,9 +1183,9 @@ namespace CTRPluginFramework
         Stride = 4;
     }
 
-    void    HexEditor::AsmView::Draw(void)
+    void HexEditor::AsmView::Draw(void)
     {
-        int   posY = 61;
+        int posY = 61;
 
         // Draw value header
         Renderer::DrawRect(111, posY, 58, 20, Color::DeepSkyBlue);
@@ -1210,7 +1204,7 @@ namespace CTRPluginFramework
         Renderer::DrawRect(_ctx._cursorPosX, _ctx._cursorPosY, 7, 10, Color::DeepSkyBlue);
 
         // Draw items
-        for (Item& item : _ctx._items)
+        for (Item &item : _ctx._items)
         {
             int posYY = posY;
             // Values
@@ -1221,14 +1215,14 @@ namespace CTRPluginFramework
         }
     }
 
-    void    HexEditor::AsmView::ProcessEvent(Event &event)
+    void HexEditor::AsmView::ProcessEvent(Event &event)
     {
         ProcessEventsCommon(_ctx, event, 7);
     }
 
-    void    HexEditor::AsmView::UpdateView(void)
+    void HexEditor::AsmView::UpdateView(void)
     {
-        u32&    flags = _ctx._flags;
+        u32 &flags = _ctx._flags;
 
         // Check if cursor must be placed at a specified address
         if (flags & DirtyCursor)
@@ -1236,13 +1230,13 @@ namespace CTRPluginFramework
             flags &= ~DirtyCursor;
             flags |= (DirtyCursorPos | DirtyCursorCache);
 
-            u32     start = _ctx._address;
-            u32     target = _ctx._cursorAddress - start;
-            u32     targetX = (target % Stride) << 1;
+            u32 start = _ctx._address;
+            u32 target = _ctx._cursorAddress - start;
+            u32 targetX = (target % Stride) << 1;
 
-            u32     shiftY = 31 - __builtin_clz(Stride);
+            u32 shiftY = 31 - __builtin_clz(Stride);
             _ctx._cursorX = 6 - targetX;
-            _ctx._cursorY = target >> shiftY;           /// _ctx._cursorY = target / _viewCurrent->Stride
+            _ctx._cursorY = target >> shiftY; /// _ctx._cursorY = target / _viewCurrent->Stride
         }
 
         // Check if cache needs to be refreshed
@@ -1250,11 +1244,11 @@ namespace CTRPluginFramework
         {
             flags &= ~DirtyViewCache;
 
-            for (Item& item: _ctx._items)
+            for (Item &item : _ctx._items)
             {
-                //bool            red = false;
-                std::string&    value = item.valueCache;
-                std::string&    data = item.dataCache;
+                // bool            red = false;
+                std::string &value = item.valueCache;
+                std::string &data = item.dataCache;
 
                 value.clear();
                 data.clear();
@@ -1289,41 +1283,40 @@ namespace CTRPluginFramework
 
             // posX
             {
-                u32     startX = 115;
-                u32     byteWidth = 12;
-                u32     bytes = _ctx._cursorX >> 1;
+                u32 startX = 115;
+                u32 byteWidth = 12;
+                u32 bytes = _ctx._cursorX >> 1;
 
-                _ctx._cursorPosX = startX + bytes * byteWidth
-                                + ((_ctx._cursorX & 1) ? 6 : 0);
+                _ctx._cursorPosX = startX + bytes * byteWidth + ((_ctx._cursorX & 1) ? 6 : 0);
             }
 
             // posY
             {
-                u32     startY = 82;
-                u32     lineHeight = 10;
-                u32     lines = _ctx._cursorY;
+                u32 startY = 82;
+                u32 lineHeight = 10;
+                u32 lines = _ctx._cursorY;
 
                 _ctx._cursorPosY = startY + lines * lineHeight;
             }
         }
     }
 
-    void    HexEditor::AsmView::EditValueAtCursor(u32 val)
+    void HexEditor::AsmView::EditValueAtCursor(u32 val)
     {
         // Edit value
         {
-            u32     itemIdx = _ctx._cursorY;
-            Item&   item = _ctx._items[itemIdx];
-            u32     cursor = (7 - _ctx._cursorX) << 2;
+            u32 itemIdx = _ctx._cursorY;
+            Item &item = _ctx._items[itemIdx];
+            u32 cursor = (7 - _ctx._cursorX) << 2;
 
             item.value32 &= ~(0xF << cursor);
             item.value32 |= val << cursor;
         }
 
         // Move cursor
-        s16&    _cursorY = _ctx._cursorY;
-        s16&    _cursorX = _ctx._cursorX;
-        s16     cursor = _cursorX;
+        s16 &_cursorY = _ctx._cursorY;
+        s16 &_cursorX = _ctx._cursorX;
+        s16 cursor = _cursorX;
 
         // Advance cursor
         _cursorX = Wrap16(7, 0, _cursorX, _cursorX + 1);

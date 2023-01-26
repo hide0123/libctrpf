@@ -4,12 +4,10 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/Includes",
+                "${workspaceFolder}/include",
                 "/opt/devkitpro/libctru/include",
                 "/opt/devkitpro/devkitARM/arm-none-eabi/include",
                 "/opt/devkitpro/devkitARM/arm-none-eabi/include/**",
-                "/opt/devkitpro/libctrpf/include/",
-                "/opt/devkitpro/libctrpf/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
