@@ -242,7 +242,7 @@ namespace CTRPluginFramework
 
     Keyboard::Keyboard(const std::string &text, const std::vector<std::string> &options) : _keyboard(new KeyboardImpl(this, text))
     {
-        _hexadecimal = true;
+        _hexadecimal = false;
         DisplayTopScreen = !text.empty();
         _keyboard->Populate(options, true);
         _isPopulated = !options.empty();
@@ -250,7 +250,7 @@ namespace CTRPluginFramework
 
     Keyboard::Keyboard(const std::vector<std::string> &options) : _keyboard(new KeyboardImpl(this))
     {
-        _hexadecimal = true;
+        _hexadecimal = false;
         DisplayTopScreen = false;
         _keyboard->Populate(options, true);
         _isPopulated = !options.empty();
